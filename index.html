@@ -594,24 +594,26 @@
 
 <script>
 const STORAGE_KEY = 'roadmap-v2';
-const SOURCE_VERSION = '20260320'; // bump this on each source update to invalidate localStorage
 const STATUS_CYCLE = ['done','wip','todo','ms'];
 const TAG_LABELS = {done:'已完成', wip:'开发中', todo:'待开发', ms:'里程碑'};
 let dragSrc = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const savedVersion = localStorage.getItem(STORAGE_KEY + '-version');
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved && savedVersion === SOURCE_VERSION) {
-    // localStorage matches current source version — restore edits
-    document.querySelector('.trunk').innerHTML = saved;
-    document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
-  } else if (saved && savedVersion !== SOURCE_VERSION) {
-    // Source updated since last edit — discard old localStorage, use new source
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
-  } else {
-    localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load from Netlify Blobs (server-side persistence)
+  try {
+    const res = await fetch('/api/state');
+    const data = await res.json();
+    if (data && data.html) {
+      document.querySelector('.trunk').innerHTML = data.html;
+      document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
+    }
+  } catch (e) {
+    // API not available (local dev) — fall back to localStorage
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      document.querySelector('.trunk').innerHTML = saved;
+      document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
+    }
   }
   initNodes();
 });
@@ -868,15 +870,26 @@ function editTopic(e) {
 }
 document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
 
-function saveToStorage() {
+async function saveToStorage() {
   const trunk = document.querySelector('.trunk');
   const clone = trunk.cloneNode(true);
   clone.querySelectorAll('.add-btn, .drop-indicator').forEach(el => el.remove());
   clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
   clone.querySelectorAll('.sub-node').forEach(n => n.removeAttribute('data-init'));
-  localStorage.setItem(STORAGE_KEY, clone.innerHTML);
-  localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
-  showToast('已保存到浏览器');
+  const html = clone.innerHTML;
+  // Save to localStorage (fallback)
+  localStorage.setItem(STORAGE_KEY, html);
+  // Save to Netlify Blobs (persistent)
+  try {
+    await fetch('/api/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html, savedAt: new Date().toISOString() }),
+    });
+    showToast('已保存');
+  } catch (e) {
+    showToast('已保存到浏览器（离线）');
+  }
 }
 
 function resetAll() {
