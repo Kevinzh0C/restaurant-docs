@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026.03.19</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Serif SC','Georgia',serif;background:#fdfdfd;color:#222;font-size:15px;line-height:1.9}
+  .page{max-width:580px;margin:0 auto;padding:48px 24px 64px}
+  .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.1em;margin-bottom:32px}
+  h1{font-size:20px;font-weight:700;line-height:1.5;margin-bottom:24px}
+  p{margin-bottom:14px;color:#333}
+  p strong{color:#111;font-weight:600}
+
+  h2{font-family:'Noto Sans SC',sans-serif;font-size:11px;font-weight:600;color:#999;letter-spacing:.12em;margin:28px 0 14px;padding-bottom:6px;border-bottom:1px solid #eee}
+
+  .status .row{display:flex;align-items:center;padding:4px 0;font-family:'Noto Sans SC',sans-serif;font-size:13px}
+  .status .dot{width:7px;height:7px;border-radius:50%;margin-right:8px;flex-shrink:0}
+  .status .dot.g{background:#4caf50}
+  .status .dot.y{background:#ff9800}
+  .status .dot.r{background:#e57373}
+  .status .name{color:#555;flex:1}
+  .status .note{font-size:11px;color:#aaa}
+
+  .roadmap{margin:14px 0}
+  .phase{position:relative;padding:10px 0 10px 20px;border-left:2px solid #e0e0e0}
+  .phase:last-child{border-left-color:transparent}
+  .phase::before{content:'';position:absolute;left:-5px;top:13px;width:8px;height:8px;border-radius:50%;border:2px solid #ccc;background:#fff}
+  .phase.done{border-left-color:#4caf50}
+  .phase.done::before{border-color:#4caf50;background:#4caf50}
+  .phase.now::before{border-color:#e8590c;background:#e8590c}
+  .phase .t{font-family:'Noto Sans SC',sans-serif;font-size:13px;font-weight:500;color:#333}
+  .phase.done .t{color:#999}
+  .phase .d{font-size:12px;color:#999;margin-top:1px}
+  .phase .time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#ccc}
+
+  .bottom{margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#888}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="meta">五粮液私宴 · 2026.03.19</div>
+
+<h1>排菜逻辑改对了但界面没调通，LINE 登录是修复不是新做。</h1>
+
+<p>排菜系统做了方向性调整：不再让 AI 从零拼菜单，改成从秋总排过的 49 份真实菜谱里检索匹配。后台逻辑已验证通过（每份菜谱原样还原，0.4 秒出结果），但<strong>界面层还没跑通</strong>——卡片渲染、交互、手机适配都还需要联调。排菜的整个交互流程还要再改一轮。</p>
+
+<p>LINE 登录上周做的是<strong>修复</strong>，不是新功能。之前的 PIN 码登录方式去掉了，统一走 LINE OAuth，同时把用户表拆分成了 user + staff_profile 两张表。邀请注册、审批加入的流程是配套修的。<strong>这块是已完成的修复工作，不是新增开发。</strong></p>
+
+<h2>当前状态</h2>
+<div class="status">
+  <div class="row"><span class="dot g"></span><span class="name">LINE 登录 + 注册邀请</span><span class="note">修复完成</span></div>
+  <div class="row"><span class="dot g"></span><span class="name">权限体系（RBAC）</span><span class="note">已上线</span></div>
+  <div class="row"><span class="dot g"></span><span class="name">排菜后台逻辑</span><span class="note">49/49 验证通过</span></div>
+  <div class="row"><span class="dot g"></span><span class="name">菜品数据补全 + 价格校准</span><span class="note">233 道全覆盖</span></div>
+  <div class="row"><span class="dot y"></span><span class="name">排菜界面交互</span><span class="note">代码写了，还没跑通</span></div>
+  <div class="row"><span class="dot y"></span><span class="name">排菜流程体验</span><span class="note">需要再调一轮</span></div>
+  <div class="row"><span class="dot r"></span><span class="name">手机端适配</span><span class="note">未验证</span></div>
+  <div class="row"><span class="dot r"></span><span class="name">秋总实际试用</span><span class="note">等界面调通</span></div>
+</div>
+
+<h2>接下来</h2>
+<div class="roadmap">
+  <div class="phase done">
+    <div class="t">LINE 登录修复 + 权限体系</div>
+    <div class="time">03-16 — 03-18 ✓</div>
+  </div>
+  <div class="phase done">
+    <div class="t">排菜逻辑重构 + 数据修复</div>
+    <div class="time">03-19 ✓</div>
+  </div>
+  <div class="phase now">
+    <div class="t">排菜界面联调</div>
+    <div class="d">先跑通最小闭环：发一句话→出一张能看的菜单卡片</div>
+    <div class="time">03-20 — 03-21</div>
+  </div>
+  <div class="phase">
+    <div class="t">交互流程打磨 + 手机适配</div>
+    <div class="d">改菜、翻页、确认，在手机上走通</div>
+    <div class="time">03-21 — 03-23</div>
+  </div>
+  <div class="phase">
+    <div class="t">LINE 邀请登录上线</div>
+    <div class="time">03-23 — 03-25</div>
+  </div>
+  <div class="phase">
+    <div class="t">V1 里程碑验收</div>
+    <div class="time">03-25</div>
+  </div>
+</div>
+
+<div class="bottom">
+  昨天写了很多代码但验证不够，接下来改方法：每一步先跑通再往下走，不再积累未验证的改动。
+</div>
+
+</div>
+</body>
+</html>

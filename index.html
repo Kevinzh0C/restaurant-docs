@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五粮液私宴 — 数字餐厅 Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',system-ui,sans-serif;background:#f9fafb;color:#1a1a1a;font-size:13px}
+  .page{max-width:880px;margin:0 auto;padding:16px 20px 20px}
+
+  h1{text-align:center;font-size:18px;font-weight:700;letter-spacing:.04em;margin-bottom:1px}
+  .sub{text-align:center;font-size:10px;color:#888;margin-bottom:10px}
+
+  .legend{
+    display:flex;justify-content:center;gap:16px;margin-bottom:14px;
+    font-size:9.5px;color:#666;flex-wrap:wrap;
+  }
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;border:1.5px solid #333}
+
+  /* ─── Trunk ─── */
+  .trunk{position:relative;padding:0 0 8px}
+  .trunk::before{
+    content:'';position:absolute;left:50%;top:0;bottom:0;
+    width:4px;background:#93b4e8;transform:translateX(-50%);border-radius:2px;
+  }
+
+  /* Topic node */
+  .topic{
+    position:relative;z-index:2;width:200px;margin:0 auto;
+    padding:8px 0;text-align:center;font-size:15px;font-weight:700;
+    border-radius:7px;border:2px solid #333;cursor:default;
+  }
+  .topic small{display:block;font-size:10px;font-weight:500;opacity:.7;margin-top:1px}
+  .topic.wip      {background:#ffe066;border-color:#e8590c;color:#333}
+  .topic.plan     {background:#fff3bf;border-color:#333;color:#333}
+  .topic.target   {background:#d0bfff;border-color:#6741d9;color:#5f3dc4}
+  .topic.eco      {background:#b9f6ca;border-color:#2e7d32;color:#1b5e20}
+
+  /* Spacers */
+  .gap{height:10px}
+  .gap-lg{height:18px}
+
+  /* Branches */
+  .branches{
+    position:relative;display:grid;grid-template-columns:1fr 4px 1fr;
+    gap:0;padding:5px 0;z-index:1;
+  }
+  .branches .L{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-right:22px}
+  .branches .C{}
+  .branches .R{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding-left:22px}
+
+  /* Sub-node */
+  .sub-node{
+    position:relative;padding:5px 12px;border-radius:5px;
+    border:1.5px solid #333;font-size:11.5px;font-weight:500;white-space:nowrap;
+  }
+  .sub-node.done{background:#e0e0e0;color:#777;text-decoration:line-through;border-color:#999}
+  .sub-node.wip {background:#fff3bf;border-color:#e8590c;color:#333}
+  .sub-node.todo{background:#fff9db;border-color:#333;color:#333}
+  .sub-node.ms  {background:#d0ebff;border-color:#1971c2;color:#1864ab}
+
+  /* Status tag */
+  .sub-node .tag{
+    display:inline-block;margin-left:6px;padding:0 5px;border-radius:3px;
+    font-size:9px;font-weight:700;letter-spacing:.02em;vertical-align:middle;
+    font-family:'JetBrains Mono',monospace;line-height:16px;
+  }
+  .sub-node.done .tag{background:#999;color:white}
+  .sub-node.wip  .tag{background:#e8590c;color:white}
+  .sub-node.todo .tag{background:#d4a017;color:white}
+  .sub-node.ms   .tag{background:#1971c2;color:white}
+
+  /* Dotted connector */
+  .L .sub-node::after,.R .sub-node::before{
+    content:'';position:absolute;top:50%;width:20px;
+    border-top:3px dotted #93b4e8;transform:translateY(-50%);
+  }
+  .L .sub-node::after{right:-22px}
+  .R .sub-node::before{left:-22px}
+
+  /* HERE marker */
+  .here-marker{
+    position:relative;z-index:3;width:fit-content;margin:0 auto;
+    padding:3px 12px;background:#e8590c;color:white;
+    font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;
+    border-radius:10px;letter-spacing:.08em;
+  }
+  .here-marker::after{
+    content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;
+    border-top:7px solid #e8590c;
+  }
+
+  /* ─── Benchmark strip ─── */
+  .bench{
+    margin-top:12px;background:white;border:1.5px solid #d0d5dd;border-radius:7px;
+    padding:8px 12px;
+  }
+  .bench-title{
+    font-size:9.5px;font-weight:700;color:#666;margin-bottom:6px;
+    font-family:'JetBrains Mono',monospace;letter-spacing:.03em;
+  }
+  .bench-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+  .bench-row:last-child{margin-bottom:0}
+  .bm{
+    padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:500;
+    border:1.5px solid;display:flex;align-items:center;gap:3px;
+  }
+  .bm .ico{font-size:9px}
+  .bm.has{background:#dbeafe;border-color:#5b9bd5;color:#2c5282}
+  .bm.building{background:#fff3cd;border-color:#e8590c;color:#92400e}
+  .bm.road{background:#fffde7;border-color:#999;color:#666}
+  .bm.na{background:#f5f5f5;border-color:#ccc;color:#aaa;text-decoration:line-through}
+  .bench-legend{font-size:8.5px;color:#aaa;margin-top:4px;font-family:'JetBrains Mono',monospace}
+
+  /* ─── Problem Definitions ─── */
+  .problems{
+    margin-top:12px;background:white;border:1.5px solid #d0d5dd;border-radius:7px;
+    padding:8px 12px;
+  }
+  .prob-title{
+    font-size:9.5px;font-weight:700;color:#666;margin-bottom:6px;
+    font-family:'JetBrains Mono',monospace;letter-spacing:.03em;
+  }
+  .prob-table{width:100%;border-collapse:collapse;font-size:11px}
+  .prob-table thead{background:#f8f9fa}
+  .prob-table th{text-align:left;padding:4px 6px;font-size:9px;font-weight:600;color:#888;
+    border-bottom:1.5px solid #e0e0e0;white-space:nowrap}
+  .prob-table td{padding:5px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top;line-height:1.45}
+  .prob-table tr:last-child td{border-bottom:none}
+  .col-pri{width:52px}.col-name{width:80px;font-weight:600}.col-who{width:80px;color:#888;font-size:10px;white-space:nowrap}
+
+  .pri-tag{
+    display:inline-block;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;
+    font-family:'JetBrains Mono',monospace;letter-spacing:.02em;
+  }
+  .pri-tag.p0{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+  .pri-tag.p1{background:#fff3cd;color:#92400e;border:1px solid #fcd34d}
+  .pri-tag.p2{background:#e0f2fe;color:#1e60a8;border:1px solid #93c5fd}
+  .pri-tag.v3{background:#d0bfff;color:#5f3dc4;border:1px solid #b197fc}
+  .pri-tag.v4{background:#b9f6ca;color:#1b5e20;border:1px solid #69d98e}
+
+  .pri-p0 td{background:#fffbfb}
+  .pri-p1 td{background:#fffef5}
+
+  .prob-legend{
+    display:flex;gap:16px;margin-top:6px;font-size:8.5px;color:#aaa;
+    font-family:'JetBrains Mono',monospace;flex-wrap:wrap;
+  }
+
+  /* ─── Interactive toolbar ─── */
+  .toolbar {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:center; gap:8px;
+    padding:8px 16px; background:rgba(255,255,255,0.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid #e0e0e0; font-size:12px;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  body.edit-mode .toolbar { opacity:1; pointer-events:auto; }
+  body.edit-mode .page { padding-top:56px; }
+  .toolbar button {
+    padding:5px 14px; border-radius:6px; border:1.5px solid #d0d5dd;
+    background:white; font-size:12px; font-family:inherit; cursor:pointer;
+    display:flex; align-items:center; gap:4px; transition:all .15s;
+  }
+  .toolbar button:hover { background:#f0f0f0; }
+  .toolbar button.primary { background:#1971c2; color:white; border-color:#1971c2; }
+  .toolbar button.primary:hover { background:#1864ab; }
+  .toolbar button.danger { color:#e03131; border-color:#fca5a5; }
+  .toolbar button.danger:hover { background:#fee2e2; }
+  .toolbar .sep { width:1px; background:#e0e0e0; margin:0 4px; }
+
+  /* Edit toggle FAB */
+  .edit-fab {
+    position:fixed; bottom:24px; right:24px; z-index:100;
+    width:48px; height:48px; border-radius:50%;
+    background:#1971c2; color:white; border:none; cursor:pointer;
+    font-size:20px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:all .2s;
+  }
+  .edit-fab:hover { transform:scale(1.1); }
+  body.edit-mode .edit-fab { background:#e03131; }
+
+  /* Sub-node interactive states */
+  body.edit-mode .sub-node {
+    cursor:grab; user-select:none; transition:all .15s;
+  }
+  body.edit-mode .sub-node:hover {
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+    transform:translateY(-1px);
+  }
+  body.edit-mode .sub-node.dragging {
+    opacity:0.4; transform:scale(0.95);
+  }
+  .sub-node .node-actions {
+    display:none; position:absolute; top:-8px; right:-8px;
+    gap:2px; z-index:5;
+  }
+  body.edit-mode .sub-node:hover .node-actions { display:flex; }
+  .node-actions button {
+    width:20px; height:20px; border-radius:50%; border:1.5px solid #ccc;
+    background:white; font-size:10px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; padding:0; line-height:1;
+  }
+  .node-actions .btn-del { color:#e03131; border-color:#fca5a5; }
+  .node-actions .btn-del:hover { background:#fee2e2; }
+
+  /* Status dot */
+  .sub-node .status-dot {
+    display:none; width:8px; height:8px; border-radius:50%;
+    margin-right:6px; flex-shrink:0; border:1px solid rgba(0,0,0,0.2);
+    cursor:pointer; vertical-align:middle;
+  }
+  body.edit-mode .sub-node .status-dot { display:inline-block; }
+  .sub-node.done .status-dot { background:#999; }
+  .sub-node.wip  .status-dot { background:#e8590c; }
+  .sub-node.todo .status-dot { background:#f0c040; }
+  .sub-node.ms   .status-dot { background:#1971c2; }
+
+  /* Inline editing */
+  .sub-node .node-text { pointer-events:none; }
+  body.edit-mode .sub-node .node-text { pointer-events:auto; }
+  .sub-node .node-text[contenteditable="true"] {
+    outline:2px solid #1971c2; outline-offset:2px;
+    border-radius:3px; padding:0 2px; cursor:text;
+    white-space:pre; min-width:40px;
+  }
+
+  /* Add button */
+  .add-btn {
+    display:none; padding:4px 12px; border-radius:5px;
+    border:1.5px dashed #ccc; background:transparent;
+    color:#aaa; font-size:12px; cursor:pointer; transition:all .15s;
+    margin-top:2px;
+  }
+  .add-btn:hover { border-color:#1971c2; color:#1971c2; background:#f0f7ff; }
+  body.edit-mode .add-btn { display:block; }
+
+  /* Drop indicator */
+  .drop-indicator {
+    height:3px; background:#1971c2; border-radius:2px;
+    margin:2px 0; transition:opacity .1s;
+  }
+
+  /* Topic node editing */
+  body.edit-mode .topic { cursor:pointer; }
+  .topic .topic-text[contenteditable="true"] {
+    outline:2px solid #1971c2; outline-offset:2px; border-radius:3px;
+  }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:80px; right:24px; z-index:101;
+    padding:8px 16px; border-radius:8px; font-size:12px; font-weight:500;
+    background:#27864A; color:white; opacity:0; transform:translateY(8px);
+    transition:all .25s; pointer-events:none;
+  }
+  .toast.show { opacity:1; transform:translateY(0); }
+
+  @media(max-width:600px){
+    .branches{grid-template-columns:1fr}
+    .branches .L,.branches .R{align-items:center;padding:0}
+    .L .sub-node::after,.R .sub-node::before{display:none}
+    .branches .C{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 每日进度（report-2026-03-19.html 同款渲染，和下方 Roadmap 完全分离）-->
+<!-- ═══════════════════════════════════════════════════════ -->
+<style>
+  .rpt{font-family:'Noto Serif SC','Georgia',serif;max-width:580px;margin:0 auto;padding:32px 24px 20px;color:#222;font-size:15px;line-height:1.9}
+  .rpt .rpt-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.1em;margin-bottom:20px}
+  .rpt-h1{font-family:'Noto Sans SC',sans-serif;font-size:18px;font-weight:700;text-align:center;letter-spacing:.04em;margin-bottom:2px}
+  .rpt-sub{text-align:center;font-size:10px;color:#888;margin-bottom:20px}
+  .rpt-section{font-family:'Noto Sans SC',sans-serif;font-size:11px;font-weight:600;color:#999;letter-spacing:.12em;margin:0 0 14px;padding-bottom:6px;border-bottom:1px solid #eee}
+  .rpt p{margin-bottom:12px;color:#333;font-size:14px;line-height:1.8}
+  .rpt p strong{color:#111;font-weight:600}
+  /* Day entry */
+  .rpt details{margin-bottom:14px}
+  .rpt details summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:8px;padding:8px 0;border-bottom:1px solid #eee;user-select:none}
+  .rpt details summary::-webkit-details-marker{display:none}
+  .rpt details summary:hover{background:#fafafa;margin:0 -8px;padding:8px}
+  .rpt .day-date{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#333;min-width:46px}
+  .rpt .day-title{font-size:13px;font-weight:600;color:#444;flex:1}
+  .rpt .day-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:#bbb}
+  .rpt .day-arrow{font-size:10px;color:#ccc;transition:transform .15s}
+  .rpt details[open] .day-arrow{transform:rotate(90deg)}
+  .rpt details.today .day-date{color:#e8590c}
+  .rpt details.today summary{border-bottom-color:#e8590c;border-bottom-width:2px}
+  .rpt .day-body{padding:12px 0 0}
+  /* Status rows */
+  .rpt .st .row{display:flex;align-items:center;padding:4px 0;font-family:'Noto Sans SC',sans-serif;font-size:13px}
+  .rpt .st .dot{width:7px;height:7px;border-radius:50%;margin-right:8px;flex-shrink:0}
+  .rpt .st .dot.g{background:#4caf50}.rpt .st .dot.y{background:#ff9800}.rpt .st .dot.r{background:#e57373}
+  .rpt .st .name{color:#555;flex:1}.rpt .st .note{font-size:11px;color:#aaa}
+  /* Phase timeline */
+  .rpt .ph{position:relative;padding:8px 0 8px 20px;border-left:2px solid #e0e0e0}
+  .rpt .ph:last-child{border-left-color:transparent}
+  .rpt .ph::before{content:'';position:absolute;left:-5px;top:11px;width:8px;height:8px;border-radius:50%;border:2px solid #ccc;background:#fff}
+  .rpt .ph.done{border-left-color:#4caf50}.rpt .ph.done::before{border-color:#4caf50;background:#4caf50}
+  .rpt .ph.now::before{border-color:#e8590c;background:#e8590c}
+  .rpt .ph .t{font-family:'Noto Sans SC',sans-serif;font-size:13px;font-weight:500;color:#333}
+  .rpt .ph.done .t{color:#999}
+  .rpt .ph .d{font-size:12px;color:#999;margin-top:1px}
+  .rpt .ph .time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#ccc}
+  .rpt .bottom{margin-top:20px;padding-top:12px;border-top:1px solid #eee;font-size:13px;color:#888}
+  /* Divider */
+  .rpt-divider{max-width:880px;margin:12px auto 0;border-bottom:3px solid #e0e0e0}
+</style>
+
+<div class="rpt">
+  <div class="rpt-h1">五粮液私宴 — 数字餐厅</div>
+  <div class="rpt-sub">项目进度 + Roadmap</div>
+  <div class="rpt-section">每日进度</div>
+
+  <!-- ══ 新日期在这里往上加，加完把前一天的 class="today" 和 open 去掉 ══ -->
+
+  <!-- ── 03-19 ── -->
+  <details class="today" open>
+    <summary>
+      <span class="day-date">03-19</span>
+      <span class="day-title">排菜逻辑改对了，界面还没调通。</span>
+      <span class="day-meta">64 commits</span>
+      <span class="day-arrow">▸</span>
+    </summary>
+    <div class="day-body">
+      <p>排菜系统做了方向性调整：不再让 AI 从零拼菜单，改成从秋总排过的 49 份真实菜谱里检索匹配。后台逻辑已验证通过（每份菜谱原样还原，0.4 秒出结果），但<strong>界面层还没跑通</strong>——卡片渲染、交互、手机适配都还需要联调。排菜的整个交互流程还要再改一轮。</p>
+      <p>LINE 登录上周做的是<strong>修复</strong>，不是新功能。之前的 PIN 码登录去掉了，统一走 LINE OAuth，同时拆分了用户表。这块是已完成的修复工作，不是新增开发。</p>
+
+      <div class="rpt-section">当前状态</div>
+      <div class="st">
+        <div class="row"><span class="dot g"></span><span class="name">LINE 登录 + 注册邀请</span><span class="note">修复完成</span></div>
+        <div class="row"><span class="dot g"></span><span class="name">权限体系（RBAC）</span><span class="note">已上线</span></div>
+        <div class="row"><span class="dot g"></span><span class="name">排菜后台逻辑</span><span class="note">49/49 验证通过</span></div>
+        <div class="row"><span class="dot g"></span><span class="name">菜品数据补全 + 价格校准</span><span class="note">233 道全覆盖</span></div>
+        <div class="row"><span class="dot y"></span><span class="name">排菜界面交互</span><span class="note">代码写了，还没跑通</span></div>
+        <div class="row"><span class="dot y"></span><span class="name">排菜流程体验</span><span class="note">需要再调一轮</span></div>
+        <div class="row"><span class="dot r"></span><span class="name">手机端适配</span><span class="note">未验证</span></div>
+        <div class="row"><span class="dot r"></span><span class="name">LINE 邀请登录上线</span><span class="note">等界面调通</span></div>
+      </div>
+
+      <div class="rpt-section">接下来</div>
+      <div>
+        <div class="ph done"><div class="t">LINE 登录修复 + 权限体系</div><div class="time">03-16 — 03-18 ✓</div></div>
+        <div class="ph done"><div class="t">排菜逻辑重构 + 数据修复</div><div class="time">03-19 ✓</div></div>
+        <div class="ph now"><div class="t">排菜界面联调</div><div class="d">先跑通最小闭环：发一句话→出一张能看的菜单卡片</div><div class="time">03-20 — 03-21</div></div>
+        <div class="ph"><div class="t">交互流程打磨 + 手机适配</div><div class="d">改菜、翻页、确认，在手机上走通</div><div class="time">03-21 — 03-23</div></div>
+        <div class="ph"><div class="t">LINE 邀请登录上线</div><div class="time">03-23 — 03-25</div></div>
+        <div class="ph"><div class="t">V1 里程碑验收</div><div class="time">03-25</div></div>
+      </div>
+
+      <div class="bottom">昨天写了很多代码但验证不够，接下来改方法：每一步先跑通再往下走，不再积累未验证的改动。</div>
+    </div>
+  </details>
+</div>
+<div class="rpt-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- Roadmap（原有内容，不动）                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <h1>五粮液私宴 — 数字餐厅 Roadmap</h1>
+  <p class="sub">单机版 · 对标哗啦啦 · 4 个版本迭代 · LINE 生态</p>
+
+  <div class="legend">
+    <span><i style="background:#e0e0e0;border-color:#999"></i> 已完成</span>
+    <span><i style="background:#ffe066;border-color:#e8590c"></i> 进行中</span>
+    <span><i style="background:#fff9db;border-color:#333"></i> 待开发</span>
+    <span><i style="background:#d0ebff;border-color:#1971c2"></i> 里程碑</span>
+  </div>
+
+  <div class="trunk">
+
+    <!-- ══════════ V1 ══════════ -->
+    <div class="topic wip">V1 · 先跑起来<small>基础功能 + 内测部署</small></div>
+    <div class="branches">
+      <div class="L">
+        <div class="sub-node done">基础架构 (Monorepo · Drizzle · CI/CD)<span class="tag">已完成</span></div>
+        <div class="sub-node done">宴会与菜单 (流程管理 · OCR · 模板配菜)<span class="tag">已完成</span></div>
+        <div class="sub-node done">客户管理 (CRM · 过敏 · 关系网 · AI)<span class="tag">已完成</span></div>
+        <div class="sub-node wip">考勤签到 (GPS打卡 · 出勤查询)<span class="tag">开发中</span></div>
+      </div>
+      <div class="C"></div>
+      <div class="R">
+        <div class="sub-node done">身份权限 (LINE登录 · RBAC · 邀请审批)<span class="tag">已完成</span></div>
+        <div class="sub-node done">人员组织 (成员 · 角色 · 档案 · 权限)<span class="tag">已完成</span></div>
+        <div class="sub-node done">财务分析 (收入 · 成本 · 过敏检测)<span class="tag">已完成</span></div>
+        <div class="sub-node ms">部署上线 · 邵总秋总试用<span class="tag">里程碑</span></div>
+      </div>
+    </div>
+
+    <div class="gap-lg"></div>
+    <div class="here-marker">WE ARE HERE</div>
+    <div class="gap"></div>
+
+    <!-- ══════════ V2 ══════════ -->
+    <div class="topic plan">V2 · 功能补全<small>边用边建 · 运营闭环</small></div>
+    <div class="branches">
+      <div class="L">
+        <div class="sub-node todo">场地与预约 (包房 · 日历 · 冲突)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">勤务管理 (28h合规 · 工时上限)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">菜品留底 (出品拍照 · 菜品档案)<span class="tag">待开发</span></div>
+      </div>
+      <div class="C"></div>
+      <div class="R">
+        <div class="sub-node todo">体验打磨 (移动适配 · 骨架屏)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">排班与人力 (班次 · 排班 · 工时)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">LINE 生态 (推送 · Rich Menu)<span class="tag">待开发</span></div>
+      </div>
+    </div>
+
+    <div class="gap"></div>
+
+    <!-- ══════════ V3 ══════════ -->
+    <div class="topic target">V3 · 正式上线<small>全功能 · 生产级 · Go-Live</small></div>
+    <div class="branches">
+      <div class="L">
+        <div class="sub-node todo">数据看板 (仪表盘 · KPI · 报表)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">安全与可靠 (防攻击 · 监控 · 备份)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">迭代修复 (反馈 · 性能 · 边界)<span class="tag">待开发</span></div>
+      </div>
+      <div class="C"></div>
+      <div class="R">
+        <div class="sub-node todo">培训与文档 (手册 · FAQ · 视频)<span class="tag">待开发</span></div>
+        <div class="sub-node ms">全员培训 · 正式营业 Go-Live<span class="tag">里程碑</span></div>
+      </div>
+    </div>
+
+    <div class="gap"></div>
+
+    <!-- ══════════ V4 ══════════ -->
+    <div class="topic eco">V4 · 生态扩展<small>LINE · 合规 · AI 深度</small></div>
+    <div class="branches">
+      <div class="L">
+        <div class="sub-node todo">消息与通知 (站内 · 库存预警)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">合规与食安 (28h · 食品安全)<span class="tag">待开发</span></div>
+      </div>
+      <div class="C"></div>
+      <div class="R">
+        <div class="sub-node todo">AI 深度集成 (补全 · 推荐 · 分析)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">智能运营 (厨房 · 预测 · 评分)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">采购供应链 (供应商 · 采购 · 验收)<span class="tag">待开发</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ Benchmark ═══ -->
+  <div class="bench">
+    <div class="bench-title">对标哗啦啦 — 单店替代能力 (9/13 覆盖，4 项不适用)</div>
+    <div class="bench-row">
+      <span class="bm has"><span class="ico">●</span> 会员/档案→CRM</span>
+      <span class="bm has"><span class="ico">●</span> 订单→宴会</span>
+      <span class="bm has"><span class="ico">●</span> 结算→财务</span>
+      <span class="bm has"><span class="ico">●</span> 人事→成员</span>
+      <span class="bm building"><span class="ico">◐</span> 考勤→V1</span>
+      <span class="bm road"><span class="ico">○</span> BI→V3</span>
+      <span class="bm road"><span class="ico">○</span> 供应链→V4</span>
+      <span class="bm road"><span class="ico">○</span> 营销→V4</span>
+      <span class="bm road"><span class="ico">○</span> 排班→V2</span>
+    </div>
+    <div class="bench-row">
+      <span class="bm na">支付/POS</span>
+      <span class="bm na">微信餐厅</span>
+      <span class="bm na">积分商城</span>
+      <span class="bm na">电子发票</span>
+    </div>
+    <div class="bench-legend">● 已有 &nbsp; ◐ 开发中 &nbsp; ○ 路线图内 &nbsp; <s>划线</s> 不适用</div>
+  </div>
+
+  <!-- ═══ Problem Definitions & Priority ═══ -->
+  <div class="problems">
+    <div class="prob-title">V2 功能优先级 — 问题定义与排序</div>
+    <table class="prob-table">
+      <thead>
+        <tr><th class="col-pri">优先级</th><th class="col-name">功能</th><th class="col-problem">要解决的问题</th><th class="col-who">谁痛</th></tr>
+      </thead>
+      <tbody>
+        <tr class="pri-p0">
+          <td><span class="pri-tag p0">P0</span></td>
+          <td>勤务管理</td>
+          <td>日本法规要求留学生打工每周 ≤28h，目前全靠人工算，超时即违法，店铺面临罚款和停业风险</td>
+          <td>老板 · 店长</td>
+        </tr>
+        <tr class="pri-p0">
+          <td><span class="pri-tag p0">P0</span></td>
+          <td>菜品留底</td>
+          <td>出品后需拍照留底备查，目前散落在 LINE 群聊里，找不到、无法按日期菜品检索，食安审查时无法提供记录</td>
+          <td>主厨 · 店长</td>
+        </tr>
+        <tr class="pri-p1">
+          <td><span class="pri-tag p1">P1</span></td>
+          <td>排班与人力</td>
+          <td>排班用纸质 / Excel，变更靠口头通知，换班记录无迹可查，月底算薪靠人工核对考勤</td>
+          <td>店长 · 员工</td>
+        </tr>
+        <tr class="pri-p1">
+          <td><span class="pri-tag p1">P1</span></td>
+          <td>LINE 生态</td>
+          <td>客户和员工都在 LINE 上，但系统通知（宴会确认、排班变更、库存预警）靠人手转发，漏通知常发生</td>
+          <td>全员</td>
+        </tr>
+        <tr class="pri-p2">
+          <td><span class="pri-tag p2">P2</span></td>
+          <td>场地与预约</td>
+          <td>包房预定靠记忆和手写本，偶尔撞档（两桌订同一包房），客人到场才发现</td>
+          <td>店长 · 服务员</td>
+        </tr>
+        <tr class="pri-p2">
+          <td><span class="pri-tag p2">P2</span></td>
+          <td>体验打磨</td>
+          <td>手机端操作不便，加载无反馈，偶尔误操作无法撤回，影响一线使用意愿</td>
+          <td>全员</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="prob-title" style="margin-top:10px">V3–V4 远期功能</div>
+    <table class="prob-table">
+      <thead>
+        <tr><th class="col-pri">阶段</th><th class="col-name">功能</th><th class="col-problem">要解决的问题</th><th class="col-who">谁痛</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pri-tag v3">V3</span></td>
+          <td>数据看板</td>
+          <td>经营数据散落在各模块，老板无法一眼看全店每日营收、成本、客流、人效</td>
+          <td>老板</td>
+        </tr>
+        <tr>
+          <td><span class="pri-tag v3">V3</span></td>
+          <td>安全与可靠</td>
+          <td>单机部署无备份无监控，硬盘故障 = 数据全丢，无人知道系统何时宕机</td>
+          <td>老板</td>
+        </tr>
+        <tr>
+          <td><span class="pri-tag v3">V3</span></td>
+          <td>培训与文档</td>
+          <td>新员工上手靠口传，功能不会用就不用，系统利用率低</td>
+          <td>店长 · 新员工</td>
+        </tr>
+        <tr>
+          <td><span class="pri-tag v4">V4</span></td>
+          <td>合规与食安</td>
+          <td>28h 工时、食材过期、卫生检查等合规项靠人记，漏查即罚</td>
+          <td>老板 · 店长</td>
+        </tr>
+        <tr>
+          <td><span class="pri-tag v4">V4</span></td>
+          <td>AI 深度集成</td>
+          <td>菜单推荐、成本预测、客户画像等高价值场景目前仅有基础查询，未发挥 AI 潜力</td>
+          <td>老板 · 主厨</td>
+        </tr>
+        <tr>
+          <td><span class="pri-tag v4">V4</span></td>
+          <td>采购供应链</td>
+          <td>食材采购靠经验和电话，无供应商比价，验收无标准记录，成本控制靠感觉</td>
+          <td>主厨 · 老板</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="prob-legend">
+      <span><b>P0</b> 法规/合规风险，必须最先做</span>
+      <span><b>P1</b> 日常运营痛点，影响效率</span>
+      <span><b>P2</b> 体验优化，提升使用意愿</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="primary" onclick="addPhase()">+ 阶段</button>
+  <div class="sep"></div>
+  <button onclick="saveToStorage()">保存</button>
+  <button onclick="exportHTML()">导出</button>
+  <div class="sep"></div>
+  <button class="danger" onclick="resetAll()">重置</button>
+</div>
+
+<!-- Edit toggle FAB -->
+<button class="edit-fab" onclick="toggleEditMode()" title="编辑模式">&#9998;</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'roadmap-v2';
+const STATUS_CYCLE = ['done','wip','todo','ms'];
+const TAG_LABELS = {done:'已完成', wip:'开发中', todo:'待开发', ms:'里程碑'};
+let dragSrc = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    document.querySelector('.trunk').innerHTML = saved;
+    document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
+  }
+  initNodes();
+});
+
+function toggleEditMode() {
+  document.body.classList.toggle('edit-mode');
+  if (document.body.classList.contains('edit-mode')) initNodes();
+}
+
+function initNodes() {
+  document.querySelectorAll('.sub-node').forEach(node => {
+    if (node.dataset.init) return;
+    node.dataset.init = '1';
+    node.setAttribute('draggable', 'true');
+
+    if (!node.querySelector('.node-text')) {
+      // Preserve existing tag if present
+      const existingTag = node.querySelector('.tag');
+      const tagText = existingTag ? existingTag.textContent : null;
+      // Get text content excluding the tag
+      if (existingTag) existingTag.remove();
+      const text = node.textContent.trim();
+      node.innerHTML = '';
+
+      const dot = document.createElement('span');
+      dot.className = 'status-dot';
+      dot.onclick = (e) => { e.stopPropagation(); cycleStatus(node); };
+      const span = document.createElement('span');
+      span.className = 'node-text';
+      span.textContent = text;
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      const status = STATUS_CYCLE.find(s => node.classList.contains(s)) || 'todo';
+      tag.textContent = tagText || TAG_LABELS[status] || '待开发';
+      const actions = document.createElement('span');
+      actions.className = 'node-actions';
+      actions.innerHTML = '<button class="btn-del" onclick="deleteNode(this)" title="删除">&times;</button>';
+      node.append(dot, span, tag, actions);
+    }
+
+    node.addEventListener('dblclick', (e) => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      e.stopPropagation();
+      const txt = node.querySelector('.node-text');
+      txt.contentEditable = 'true';
+      txt.focus();
+      const range = document.createRange();
+      range.selectNodeContents(txt);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    });
+
+    node.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); node.querySelector('.node-text').blur(); }
+      if (e.key === 'Escape') node.querySelector('.node-text').blur();
+    });
+    node.querySelector('.node-text')?.addEventListener('blur', function() {
+      this.contentEditable = 'false';
+      if (!this.textContent.trim()) this.textContent = '(empty)';
+    });
+
+    node.addEventListener('dragstart', onDragStart);
+    node.addEventListener('dragend', onDragEnd);
+  });
+
+  document.querySelectorAll('.branches .L, .branches .R').forEach(col => {
+    if (col.dataset.drop) return;
+    col.dataset.drop = '1';
+    col.addEventListener('dragover', onDragOver);
+    col.addEventListener('dragleave', onDragLeave);
+    col.addEventListener('drop', onDrop);
+
+    if (!col.querySelector('.add-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'add-btn';
+      btn.textContent = '+ 添加';
+      btn.onclick = () => addNode(col);
+      col.appendChild(btn);
+    }
+  });
+}
+
+function onDragStart(e) {
+  if (!document.body.classList.contains('edit-mode')) { e.preventDefault(); return; }
+  dragSrc = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', '');
+}
+
+function onDragEnd() {
+  this.classList.remove('dragging');
+  document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+  dragSrc = null;
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (!dragSrc) return;
+  document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+  const col = this;
+  const nodes = [...col.querySelectorAll('.sub-node')];
+  const y = e.clientY;
+  let insertBefore = null;
+  for (const n of nodes) {
+    const rect = n.getBoundingClientRect();
+    if (y < rect.top + rect.height / 2) { insertBefore = n; break; }
+  }
+  const indicator = document.createElement('div');
+  indicator.className = 'drop-indicator';
+  if (insertBefore) col.insertBefore(indicator, insertBefore);
+  else {
+    const addBtn = col.querySelector('.add-btn');
+    if (addBtn) col.insertBefore(indicator, addBtn);
+    else col.appendChild(indicator);
+  }
+}
+
+function onDragLeave(e) {
+  if (!this.contains(e.relatedTarget))
+    this.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  if (!dragSrc) return;
+  const col = this;
+  const indicator = col.querySelector('.drop-indicator');
+  if (indicator) { col.insertBefore(dragSrc, indicator); indicator.remove(); }
+  else {
+    const addBtn = col.querySelector('.add-btn');
+    if (addBtn) col.insertBefore(dragSrc, addBtn);
+    else col.appendChild(dragSrc);
+  }
+  dragSrc.classList.remove('dragging');
+  showToast('已移动');
+}
+
+function cycleStatus(node) {
+  const current = STATUS_CYCLE.find(s => node.classList.contains(s)) || 'todo';
+  const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(current) + 1) % STATUS_CYCLE.length];
+  STATUS_CYCLE.forEach(s => node.classList.remove(s));
+  node.classList.add(next);
+  node.style.textDecoration = next === 'done' ? 'line-through' : 'none';
+  const tag = node.querySelector('.tag');
+  if (tag) tag.textContent = TAG_LABELS[next];
+  showToast('状态 → ' + TAG_LABELS[next]);
+}
+
+function addNode(col) {
+  const node = document.createElement('div');
+  node.className = 'sub-node todo';
+  node.setAttribute('draggable', 'true');
+  const dot = document.createElement('span');
+  dot.className = 'status-dot';
+  dot.onclick = (e) => { e.stopPropagation(); cycleStatus(node); };
+  const span = document.createElement('span');
+  span.className = 'node-text';
+  span.textContent = '新功能';
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = '待开发';
+  const actions = document.createElement('span');
+  actions.className = 'node-actions';
+  actions.innerHTML = '<button class="btn-del" onclick="deleteNode(this)" title="删除">&times;</button>';
+  node.append(dot, span, tag, actions);
+
+  const addBtn = col.querySelector('.add-btn');
+  if (addBtn) col.insertBefore(node, addBtn);
+  else col.appendChild(node);
+
+  node.dataset.init = '1';
+  node.addEventListener('dragstart', onDragStart);
+  node.addEventListener('dragend', onDragEnd);
+  node.addEventListener('dblclick', (e) => {
+    if (!document.body.classList.contains('edit-mode')) return;
+    e.stopPropagation();
+    span.contentEditable = 'true'; span.focus();
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+  node.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+    if (e.key === 'Escape') span.blur();
+  });
+  span.addEventListener('blur', function() {
+    this.contentEditable = 'false';
+    if (!this.textContent.trim()) this.textContent = '(empty)';
+  });
+
+  setTimeout(() => {
+    span.contentEditable = 'true'; span.focus();
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  }, 50);
+  showToast('已添加');
+}
+
+function deleteNode(btn) {
+  const node = btn.closest('.sub-node');
+  if (node) {
+    node.style.transform = 'scale(0.8)'; node.style.opacity = '0';
+    setTimeout(() => node.remove(), 150);
+    showToast('已删除');
+  }
+}
+
+function addPhase() {
+  const trunk = document.querySelector('.trunk');
+  const gap = document.createElement('div'); gap.className = 'gap';
+  const topic = document.createElement('div');
+  topic.className = 'topic plan';
+  topic.innerHTML = '<span class="topic-text">新阶段</span>';
+  topic.addEventListener('dblclick', editTopic);
+  const branches = document.createElement('div');
+  branches.className = 'branches';
+  branches.innerHTML = '<div class="L"></div><div class="C"></div><div class="R"></div>';
+  trunk.append(gap, topic, branches);
+  initNodes();
+  setTimeout(() => {
+    const txt = topic.querySelector('.topic-text');
+    txt.contentEditable = 'true'; txt.focus();
+    const range = document.createRange();
+    range.selectNodeContents(txt);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    txt.addEventListener('blur', () => { txt.contentEditable = 'false'; });
+    txt.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); txt.blur(); } });
+  }, 50);
+  showToast('已添加阶段');
+}
+
+function editTopic(e) {
+  if (!document.body.classList.contains('edit-mode')) return;
+  const topic = e.currentTarget;
+  let txt = topic.querySelector('.topic-text');
+  if (!txt) {
+    const content = topic.childNodes[0]?.textContent?.trim() || topic.textContent.trim();
+    const small = topic.querySelector('small');
+    topic.innerHTML = '';
+    txt = document.createElement('span'); txt.className = 'topic-text';
+    txt.textContent = content;
+    topic.appendChild(txt);
+    if (small) topic.appendChild(small);
+  }
+  txt.contentEditable = 'true'; txt.focus();
+  txt.addEventListener('blur', () => { txt.contentEditable = 'false'; }, { once: true });
+  txt.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); txt.blur(); } });
+}
+document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
+
+function saveToStorage() {
+  const trunk = document.querySelector('.trunk');
+  const clone = trunk.cloneNode(true);
+  clone.querySelectorAll('.add-btn, .drop-indicator').forEach(el => el.remove());
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  clone.querySelectorAll('.sub-node').forEach(n => n.removeAttribute('data-init'));
+  localStorage.setItem(STORAGE_KEY, clone.innerHTML);
+  showToast('已保存到浏览器');
+}
+
+function resetAll() {
+  if (!confirm('确定重置为初始状态？所有修改将丢失。')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function exportHTML() {
+  saveToStorage();
+  const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'roadmap-' + new Date().toISOString().slice(0,10) + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('已导出');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1500);
+}
+</script>
+
+</body>
+</html>
