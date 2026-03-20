@@ -383,7 +383,7 @@
     <div class="branches">
       <div class="L">
         <div class="sub-node done">基础架构 (Monorepo · Drizzle · CI/CD)<span class="tag">已完成</span></div>
-        <div class="sub-node done">宴会与菜单 (流程管理 · OCR · 模板配菜)<span class="tag">已完成</span></div>
+        <div class="sub-node wip">宴会与菜单 (排菜重构中 · 后台通过 · 界面联调)<span class="tag">联调中</span></div>
         <div class="sub-node done">客户管理 (CRM · 过敏 · 关系网 · AI)<span class="tag">已完成</span></div>
         <div class="sub-node wip">考勤签到 (GPS打卡 · 出勤查询)<span class="tag">开发中</span></div>
       </div>
@@ -594,15 +594,24 @@
 
 <script>
 const STORAGE_KEY = 'roadmap-v2';
+const SOURCE_VERSION = '20260320'; // bump this on each source update to invalidate localStorage
 const STATUS_CYCLE = ['done','wip','todo','ms'];
 const TAG_LABELS = {done:'已完成', wip:'开发中', todo:'待开发', ms:'里程碑'};
 let dragSrc = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  const savedVersion = localStorage.getItem(STORAGE_KEY + '-version');
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
+  if (saved && savedVersion === SOURCE_VERSION) {
+    // localStorage matches current source version — restore edits
     document.querySelector('.trunk').innerHTML = saved;
     document.querySelectorAll('.topic').forEach(t => t.addEventListener('dblclick', editTopic));
+  } else if (saved && savedVersion !== SOURCE_VERSION) {
+    // Source updated since last edit — discard old localStorage, use new source
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
+  } else {
+    localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
   }
   initNodes();
 });
@@ -866,6 +875,7 @@ function saveToStorage() {
   clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
   clone.querySelectorAll('.sub-node').forEach(n => n.removeAttribute('data-init'));
   localStorage.setItem(STORAGE_KEY, clone.innerHTML);
+  localStorage.setItem(STORAGE_KEY + '-version', SOURCE_VERSION);
   showToast('已保存到浏览器');
 }
 
