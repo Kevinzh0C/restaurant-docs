@@ -384,7 +384,6 @@
         <div class="sub-node done">基础架构 (Monorepo · Drizzle · CI/CD)<span class="tag">已完成</span></div>
         <div class="sub-node wip">宴会与菜单 (排菜重构中 · 后台通过 · 界面联调)<span class="tag">联调中</span></div>
         <div class="sub-node done">客户管理 (CRM · 过敏 · 关系网 · AI)<span class="tag">已完成</span></div>
-        <div class="sub-node wip">考勤签到 (GPS打卡 · 出勤查询)<span class="tag">开发中</span></div>
       </div>
       <div class="C"></div>
       <div class="R">
@@ -406,6 +405,7 @@
         <div class="sub-node todo">场地与预约 (包房 · 日历 · 冲突)<span class="tag">待开发</span></div>
         <div class="sub-node todo">勤务管理 (28h合规 · 工时上限)<span class="tag">待开发</span></div>
         <div class="sub-node todo">菜品留底 (出品拍照 · 菜品档案)<span class="tag">待开发</span></div>
+        <div class="sub-node todo">考勤签到 (手机打卡 · 出勤查询)<span class="tag">待开发</span></div>
       </div>
       <div class="C"></div>
       <div class="R">
@@ -459,7 +459,7 @@
       <span class="bm has"><span class="ico">●</span> 订单→宴会</span>
       <span class="bm has"><span class="ico">●</span> 结算→财务</span>
       <span class="bm has"><span class="ico">●</span> 人事→成员</span>
-      <span class="bm building"><span class="ico">◐</span> 考勤→V1</span>
+      <span class="bm road"><span class="ico">○</span> 考勤→V2</span>
       <span class="bm road"><span class="ico">○</span> BI→V3</span>
       <span class="bm road"><span class="ico">○</span> 供应链→V4</span>
       <span class="bm road"><span class="ico">○</span> 营销→V4</span>
@@ -592,7 +592,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'roadmap-v2';
+const STORAGE_KEY = 'roadmap-v3'; // bumped to invalidate old localStorage
 const STATUS_CYCLE = ['done','wip','todo','ms'];
 const TAG_LABELS = {done:'已完成', wip:'开发中', todo:'待开发', ms:'里程碑'};
 let dragSrc = null;
